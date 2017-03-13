@@ -20,9 +20,9 @@ int main() {
 	}
 
 	int ans=0;
-	ans+=stu12/k+(stu12%k ? 1 : 0);
-	ans+=stu34w/k+(stu34w%k ? 1 : 0)+stu34m/k+(stu34m%k ? 1 : 0);
-	ans+=stu56w/k+(stu56w%k ? 1 : 0)+stu56m/k+(stu56m%k ? 1 : 0);
+	ans+=(stu12+k-1)/k;
+	ans+=(stu34w+k-1)/k+(stu34m+k-1)/k;
+	ans+=(stu56w+k-1)/k+(stu56m+k-1)/k;
 
 	printf("%d\n", ans);
 	return 0;
