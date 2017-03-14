@@ -1,4 +1,4 @@
-//KOI 풀이 보고 풀었음
+//refer to a KOI solution
 //https://www.digitalculture.or.kr/koi/showOlymPiadDissentDetail.do
 //
 #include <cstdio>
@@ -6,7 +6,6 @@
 using namespace std;
 
 typedef long long llint;
-
 int dist[100000];
 int price[100000];
 
