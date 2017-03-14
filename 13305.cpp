@@ -1,6 +1,6 @@
 //refer to a KOI solution
 //https://www.digitalculture.or.kr/koi/showOlymPiadDissentDetail.do
-//
+
 #include <cstdio>
 #include <algorithm>
 using namespace std;
