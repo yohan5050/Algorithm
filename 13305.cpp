@@ -1,4 +1,5 @@
 //KOI 풀이 보고 풀었음
+//refer to a KOI solution
 //https://www.digitalculture.or.kr/koi/showOlymPiadDissentDetail.do
 //
 #include <cstdio>
