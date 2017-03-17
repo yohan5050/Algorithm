@@ -8,10 +8,10 @@
 using namespace std;
 
 int sq(int);
-bool bfs(double);
+bool bfs(int);
 
 //간선이 v*v개이므로 굳이 인접리스트로 할 필요 없음.
-double fuel[1002][1002]; //dist[a][b] a에서 b까지 가는데 필요한 연료량.
+int dist[1002][1002]; //dist[a][b] : a에서 b까지의 거리의 제곱
 int px[1002], py[1002];
 int n, k;
 
@@ -26,13 +26,13 @@ int main() {
 	//가능한 모든 조합
 	for(int i=0; i<=n; i++) 
 		for(int j=1; j<=n+1; j++) 
-			fuel[i][j]=fuel[j][i]=sqrt((double)sq(px[i]-px[j])+sq(py[i]-py[j]))/10.0;
+			dist[i][j]=dist[j][i]=sq(px[i]-px[j])+sq(py[i]-py[j]);
 
-	int lo=0, hi=fuel[0][n+1];
+	int lo=0, hi=(int)ceil(sqrt((double)dist[0][n+1])/10.0);
 	while(lo<=hi) {
 		//printf("test : %d %d\n", lo, hi); -> 이거 주석처리 안했었네...
 		int mid=(lo+hi)/2;
-		if(bfs((double)mid)) hi=mid-1;
+		if(bfs(mid)) hi=mid-1;
 		else lo=mid+1;
 	}
 
@@ -40,7 +40,8 @@ int main() {
 	return 0;
 }
 
-bool bfs(double limit) {
+bool bfs(int limit) {
+	limit=limit*limit*100;
 	queue<int> q;
 	int landing[1003]={0, }; //landing[X]-1 : X비행장까지의 급유 횟수를 나타냄,  그리고 X비행장을 방문했는지 안 했는지도 나타냄.
 
@@ -49,7 +50,7 @@ bool bfs(double limit) {
 	while(!q.empty()) {
 		int here=q.front(); q.pop();
 		for(int there=0; there<n+2; there++) {
-			if(landing[there]==0 && fuel[here][there]<=limit) {
+			if(landing[there]==0 && dist[here][there]<=limit) {
 				//bfs이므로 landing[here]값이 작은 값부터 보게돼있다.
 				if(there==n+1 && landing[here]-1<=k)
 					return true;
