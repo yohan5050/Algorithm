@@ -8,150 +8,74 @@ typedef struct {
 // API
 extern Result query(int guess[]);
 
-// input: 테스트 배열, output: 스트라이크의 개수
-// 이 함수는 스트라이크와 볼이 나오는 테스트 배열을
-// 스트라이크만 나오도록 만들어준다.
-int onlyStrikes(int t_arr[]) {
+Result baseballGame(int arr1[], int arr2[]) {
+	bool check[10] = {false, };
+	for(int i = 0; i < 4; i++) check[arr1[i]] = true;
+
+	Result result;
+	result.strike = 0;
+	result.ball = 0;
+
 	for(int i = 0; i < 4; i++) {
-		int candidate[4];
-		candidate[0] = t_arr[i];
-		for(int j = 0; j < 4; j++) {
-			if(j == i) continue;
-			candidate[1]= t_arr[j];
-			for(int k = 0; k < 4; k++) {
-				if(k == i || k == j) continue;
-				candidate[2] = t_arr[k];
-				for(int l = 0; l < 4; l++) {
-					if(l == i || l == j || l == k) continue;
-					candidate[3] = t_arr[l];
-					Result cRes = query(candidate);
-					if(cRes.ball == 0) {
-						for(int x = 0; x < 4; x++) t_arr[x] = candidate[x];
-						return cRes.strike;
-					}
-				}
-			}
-		}
-	}
-}
-
-void swapIdx2(int t_arr[], int idx1, int idx2) {
-	int tmp = t_arr[idx1];
-	t_arr[idx1] = t_arr[idx2];
-	t_arr[idx2] = tmp;
-}
-
-void swapIdx3(int t_arr[], int exc) {
-	int sn[3], cnt = 0;
-	for(int i = 0; i < 4; i++) {
-		if(i == exc) continue;
-		sn[cnt++] = i;
+		if(arr1[i] == arr2[i]) result.strike++;
+		else if(check[arr2[i]]) result.ball++;
 	}
 
-	int tmp = t_arr[sn[0]];	
-	t_arr[sn[0]] = t_arr[sn[1]];
-	t_arr[sn[1]] = t_arr[sn[2]];
-	t_arr[sn[2]] = tmp;
+	return result;
 }
 
-void swapIdx3Rev(int t_arr[], int exc) {
-	int sn[3], cnt = 0;
-	for(int i = 3; i >= 0; i--) {
-		if(i == exc) continue;
-		sn[cnt++] = i;
-	}
-
-	int tmp = t_arr[sn[0]];	
-	t_arr[sn[0]] = t_arr[sn[1]];
-	t_arr[sn[1]] = t_arr[sn[2]];
-	t_arr[sn[2]] = tmp;
-}
+int c_arr[6000][4];
 
 void doUserImplementation(int guess[]) {
 	// Implement a user's implementation function
 	//
 	// The array of guess[] is a return array that
 	// is your guess for what digits[] would be.
+	//
+	// 중복되지 않는 숫자들로 구성된 4자리 수의 모든 경우(10 * 9 * 8 * 7 = 5040)
+	// 에 대해서 차례로 query를 해본다. 
+	// 어떤 수a의 query결과가 나오면 q1이라고 하고,
+	// a와 나머지 다른 수b와의 야구게임 결과가 q2라고 할 때, q1과 q2가 다르면
+	// b는 절대 정답이 될 수 없으므로 제거한다. 
+	// 이런 식으로 제거해 나가면 결국 정답이 남게 된다.
 	
-	bool used[10] = {false, };
-
-	int test[3][4] = {
-		{0, 1, 2, 3},
-		{4, 5, 6, 7},
-		{8, 9, 0, 1}
-	};
-
-	for(int t = 0; t < 3; t++) {
-		Result tRes = query(test[t]);
-		if(tRes.strike == 4) {
-			for(int i = 0; i < 4; i++) guess[i] = test[t][i];
-			return;
-		}
-		if(tRes.strike + tRes.ball > 0) {
-			int sNum = onlyStrikes(test[t]);
-			if(sNum == 1) {
-				for(int i = 0; i < 4; i++) {
-					swapIdx3(test[t], i);
-					Result tRes2 = query(test[t]);
-					if(tRes2.strike == 1) {
-						used[test[t][i]] = true;
-					}
-					swapIdx3Rev(test[t], i);
-				}
-			}
-			else if(sNum == 2) {
-				for(int i = 0; i < 4; i++) {
-					for(int j = i + 1; j < 4; j++) {
-						swapIdx2(test[t], i, j);	
-						Result tRes2 = query(test[t]);
-						if(tRes2.strike == 0) {
-							used[test[t][i]] = used[test[t][j]] = true;
-						}
-						swapIdx2(test[t], i, j);
-					}
-				}
-			}
-			else if(sNum == 3) { //sNum == 3
-				for(int i = 0; i < 4; i++) {
-					swapIdx3(test[t], i);
-					Result tRes2 = query(test[t]);
-					if(tRes2.strike == 0) {
-						for(int j = 0; j < 4; j++) {
-							if(j == i) continue;
-							used[test[t][j]] = true;
-						}
-					}
-					swapIdx3Rev(test[t], i);
-				}
-			}
-			else { //sNum == 4
-				for(int i = 0; i < 4; i++) guess[i] = test[t][i];
-				return;	
-			}
-		}
-	}
-
-	int usedNum[4], cnt = 0;
+	int cnt = 0;
+	bool candCheck[6000] = {false, };
+	// 5040가지의 모든 경우의 수를 구한다.
+	int tmp[4];
 	for(int i = 0; i < 10; i++) {
-		if(used[i]) usedNum[cnt++] = i; 
+		tmp[0] = i;	
+		for(int j = 0; j < 10; j++) {
+			if(j == i) continue;
+			tmp[1] = j;
+			for(int k = 0; k < 10; k++) {
+				if(k == i || k == j) continue;
+				tmp[2] = k;
+				for(int l = 0; l < 10; l++) {
+					if(l == i || l == j || l == k) continue;
+					tmp[3] = l;
+
+					for(int x = 0; x < 4; x++) c_arr[cnt][x] = tmp[x];
+					candCheck[cnt++] = true;
+				}
+			}
+		}
 	}
 
-	for(int i = 0; i < 4; i++) {
-		int candidate[4];
-		candidate[0] = usedNum[i];
-		for(int j = 0; j < 4; j++) {
-			if(j == i) continue;
-			candidate[1]= usedNum[j];
-			for(int k = 0; k < 4; k++) {
-				if(k == i || k == j) continue;
-				candidate[2] = usedNum[k];
-				for(int l = 0; l < 4; l++) {
-					if(l == i || l == j || l == k) continue;
-					candidate[3] = usedNum[l];
-					Result cRes = query(candidate);
-					if(cRes.strike == 4) {
-						for(int x = 0; x < 4; x++) guess[x] = candidate[x];
-						return;
+	for(int i = 0; i < cnt; i++) {
+		if(candCheck[i]) {
+			Result qRes = query(c_arr[i]);
+			if(qRes.strike == 4) {
+				for(int x = 0; x < 4; x++) guess[x] = c_arr[i][x];
+				return;
+			}
+
+			candCheck[i] = false;
+			for(int j = i + 1; j < cnt; j++) {
+				if(candCheck[j]) {
+					Result cRes = baseballGame(c_arr[i], c_arr[j]);
+					if(cRes.strike != qRes.strike || cRes.ball != qRes.ball) {
+						candCheck[j] = false;	
 					}
 				}
 			}
